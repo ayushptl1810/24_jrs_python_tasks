@@ -182,7 +182,7 @@ class Game:
 
     def play(self):
         self.generate_board()
-        print(self.computer_board)
+        #print(self.computer_board)
 
         while self.ship_length_list:
             print(self.ship_length_list)
