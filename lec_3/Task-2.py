@@ -10,12 +10,20 @@ class Board:
         if direction == 'Horizontal':
             if col + ship_length > self.size:
                 return False
+            
+            elif (col > 0 and self.matrix[row, col - 1] in ('SH')) or (col + ship_length + 1 < self.size and self.matrix[row, col + ship_length + 1] in ('SH')):
+                return False
+            
             for i in range(ship_length):
                 if self.matrix[row, col + i] != ' ~':
                     return False 
         else:
             if row + ship_length > self.size:
                 return False
+            
+            elif (row > 0 and self.matrix[row - 1, col] in ('SV')) or (row + ship_length + 1 < self.size and self.matrix[row + ship_length + 1, col] in ('SV')):
+                return False
+            
             for i in range(ship_length):
                 if self.matrix[row + i, col] != ' ~':
                     return False 
@@ -47,29 +55,27 @@ class Board:
         right_end = False
         next_col = col + 1
         while not right_end and next_col < 10:
-            print(f"Here1 {row} : {next_col} ")
-            if player_matrix[row,next_col] in (' O') or (player_matrix[row, next_col] in (' ~') and self.matrix[row, next_col] in (' ~')):
+            if player_matrix[row,next_col] in ('O1', 'O2') or (player_matrix[row, next_col] in (' ~') and self.matrix[row, next_col] in (' ~')):
                 right_end = True
             elif player_matrix[row, next_col] in (' ~') and self.matrix[row, next_col] in ('SH'):
                 break
                     
             next_col += 1  
 
-        if(next_col == 10 and player_matrix[row, next_col-1] in (' X')):
+        if(next_col == 10 and player_matrix[row, next_col-1] in ('X1', 'X2')):
             right_end = True
    
         left_end = False
         next_col = col - 1
         while not left_end and next_col >= 0:
-            print(f"Here2 {row} : {next_col} ")            
-            if player_matrix[row,next_col] in (' O') or (player_matrix[row,next_col] in (' ~') and self.matrix[row, next_col] in (' ~')):
+            if player_matrix[row,next_col] in ('O1', 'O2') or (player_matrix[row,next_col] in (' ~') and self.matrix[row, next_col] in (' ~')):
                 left_end = True
             elif player_matrix[row, next_col] in (' ~') and self.matrix[row, next_col] in ('SH'):
                 break
 
             next_col -= 1
         
-        if(next_col < 0 and player_matrix[row, next_col+1] in (' X')):
+        if(next_col < 0 and player_matrix[row, next_col+1] in ('X1', 'X2')):
             left_end = True
 
         return left_end and right_end
@@ -79,29 +85,27 @@ class Board:
         bottom_end = False
         next_row = row + 1
         while not bottom_end and next_row < 10:
-            print(f"Vere1 {next_row} : {col} ")            
-            if player_matrix[next_row,col] in (' O') or (player_matrix[next_row,col] in (' ~') and self.matrix[next_row, col] in (' ~')):
+            if player_matrix[next_row,col] in ('O1', 'O2') or (player_matrix[next_row,col] in (' ~') and self.matrix[next_row, col] in (' ~')):
                 bottom_end = True
             elif player_matrix[next_row,col] in (' ~') and self.matrix[next_row, col] in ('SV') :
                 break
 
             next_row += 1
         
-        if(next_row == 10 and player_matrix[next_row - 1, col] in (' X')):
+        if(next_row == 10 and player_matrix[next_row - 1, col] in ('X1', 'X2')):
             bottom_end = True
     
         top_end = False
         next_row = row - 1
         while not top_end and next_row >= 0:
-            print(f"Vere2 {next_row} : {col} ")            
-            if player_matrix[next_row,col] in (' O') or (player_matrix[next_row,col] in (' ~') and self.matrix[next_row, col] in (' ~')):
+            if player_matrix[next_row,col] in ('O1', 'O2') or (player_matrix[next_row,col] in (' ~') and self.matrix[next_row, col] in (' ~')):
                 top_end = True
             elif player_matrix[next_row,col] in (' ~') and self.matrix[next_row, col] in ('SV') :
                 break
 
             next_row -= 1
         
-        if(next_row < 0 and player_matrix[next_row+1, col] in (' X')):
+        if(next_row < 0 and player_matrix[next_row+1, col] in ('X1', 'X2')):
             top_end = True
 
         return top_end and bottom_end
@@ -114,16 +118,16 @@ class Board:
 class Player:
     def __init__(self, name):
         self.name = name
-        self.board = Board()
         self.points = 0
-        self.moves = []
 
 class Game:
     def __init__(self):
         self.ship_length_list = [2, 3, 3, 4, 5]
         self.players = [Player('P1'), Player('P2')]
         self.current_player = 0
+        self.moves = []
         self.computer_board = Board()
+        self.players_board = Board()
 
     def generate_board(self):
         for length in self.ship_length_list:
@@ -144,17 +148,19 @@ class Game:
     def play_turn(self):
         player = self.players[self.current_player]
         print(f"\nPlayer {player.name}'s turn")
-        # print("Player's board:")
-        # print(player.board)
+        print("Player's board:")
+        print(self.players_board)
+        player_marker = '1' if self.current_player == 0 else '2' 
+
         
         while True:
             input_str = input('\nEnter row and column of the board to shoot (e.g 1 1): ')
             try:
                 row, col = map(int, input_str.split())
-                if (row, col) in player.moves:
+                if (row, col) in self.moves:
                     print('Already fired at this target, choose another')
                 elif 1 <= row <= 10 and 1 <= col <= 10:
-                    player.moves.append((row, col))
+                    self.moves.append((row, col))
                     break
                 else:
                     print("Invalid input. Please enter numbers between 1 and 10.")
@@ -165,14 +171,13 @@ class Game:
         if hit:
             print('HIT')
             player.points += 1
-            player.board.matrix[row-1, col-1] = ' X'
+            self.players_board.matrix[row-1, col-1] = f'X{player_marker}'
 
-            if self.computer_board.check_sunk(player.board.matrix, row - 1, col - 1):
-                # print('Ship Sunk!')
+            if self.computer_board.check_sunk(self.players_board.matrix, row - 1, col - 1):
                 self.ship_length_list.pop()
         else:
             print('MISS')
-            player.board.matrix[row-1, col-1] = ' O'
+            self.players_board.matrix[row-1, col-1] = f'O{player_marker}'
             self.current_player = 1 if self.current_player == 0 else 0
 
     def play(self):
