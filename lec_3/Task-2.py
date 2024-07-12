@@ -112,8 +112,7 @@ class Board:
 
     
     def __str__(self):
-        return str(self.matrix)
-        
+        return str(self.matrix)       
 
 class Player:
     def __init__(self, name):
@@ -182,7 +181,7 @@ class Game:
 
     def play(self):
         self.generate_board()
-        #print(self.computer_board)
+        print(self.computer_board)
 
         while self.ship_length_list:
             print(self.ship_length_list)
@@ -192,7 +191,6 @@ class Game:
             print('Game over, Player 1 wins!')
         else:
             print('Game over, Player 2 wins!')
-
 
 if __name__ == "__main__":
     game = Game()

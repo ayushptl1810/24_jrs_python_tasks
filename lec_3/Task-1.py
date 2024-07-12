@@ -1,29 +1,42 @@
-class Queue:
-    def __init__(self):
-        self.queue = []
+import json
+from datetime import datetime
 
-    def addq(self,v):
-        self.queue.append(v)
+class TaskList:
+    def __init__(self):
+        self.TaskList = []
+        self.load_TaskList()
+
+    def addq(self, v):
+        self.TaskList.append(v)
+        self.save_TaskList()
 
     def delq(self, v):
-        self.queue.remove(v)
-    
-    def searchq(self,v):
-        return v in self.queue
-        
+        self.TaskList.remove(v)
+        self.save_TaskList()
+
+    def searchq(self, v):
+        return v in self.TaskList
+
     def isempty(self):
-        return(self.queue == [])
-    
+        return self.TaskList == []
+
     def __str__(self):
-        return(str(self.queue))
+        return str(self.TaskList)
+
+    def save_TaskList(self):
+        with open('tasks.json', 'w') as f:
+            json.dump(self.TaskList, f)
+
+    def load_TaskList(self):
+        try:
+            with open('tasks.json', 'r') as f:
+                self.TaskList = json.load(f)
+        except FileNotFoundError:
+            self.TaskList = []
 
 class task_manager:
     def __init__(self):    
-        self.q = Queue()
-        with open('audit_log', 'w') as f:
-            f.write("Task Management Activity Log\n\n")
-        f.close()
-
+        self.q = TaskList()
         
     def add_task(self,s):
         if self.q.searchq(s):
@@ -51,9 +64,16 @@ class task_manager:
             raise Exception(f'{s} : does not exists')
 
     def log_activity(self, message):
-        with open('audit_log', 'a') as f:
-            f.write(message + '\n')
-        f.close()
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        log_message = f'[{timestamp}] {message}'
+        
+        try:
+            with open('audit_log', 'a') as f:
+                f.write(log_message + '\n')
+        except FileNotFoundError:
+            with open('audit_log', 'w') as f:
+                f.write("Task Management Activity Log\n\n")
+                f.write(log_message + '\n')
     
     def print_tasks(self):
         if self.q.isempty():
@@ -70,17 +90,17 @@ class Solution:
                 if choice == 1:
                     s = input('Enter task you want to add: ')
                     t.add_task(s)
-                    print('Task added to queue')
+                    print('Task added to TaskList')
 
                 elif choice == 2:
                     s = input('Enter the task you want to delete: ')
                     t.del_task(s)
-                    print('Task deleted from queue')
+                    print('Task deleted from TaskList')
                 
                 elif choice == 3:
                     s = input('Enter the task you want to search for: ')
                     t.search_task(s)
-                    print('Task is present in queue')  
+                    print('Task is present in TaskList')  
 
                 elif choice == 4:
                     print('Following tasks are left: ')
@@ -95,4 +115,3 @@ class Solution:
 
     except:
         print('Wrong choice, program terminated')
- 
